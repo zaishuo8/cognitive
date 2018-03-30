@@ -1,0 +1,27 @@
+{
+  "name": "cognitive",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "client": "cd client && yarn start",
+    "server": "nodemon server.js",
+    "dev": "concurrently --kill-others-on-fail yarn server yarn client"
+  },
+  "dependencies": {
+    "express": "^4.16.2"
+  },
+  "devDependencies": {
+    "concurrently": "^3.5.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/zaishuo8/cognitive.git"
+  },
+  "author": "xuting",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/zaishuo8/cognitive/issues"
+  },
+  "homepage": "https://github.com/zaishuo8/cognitive#readme"
+}
