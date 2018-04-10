@@ -85,7 +85,7 @@ class ContentBody extends Component {
                     >
                         <SubMenu key="sub1" title={<span><Icon type="question-circle-o"/>创建题干</span>}>
                             <Menu.Item key="addText">添加文字</Menu.Item>
-                            <Menu.Item key="addImg"><Upload>添加图片</Upload></Menu.Item>
+                            <Menu.Item key="addImg">添加图片</Menu.Item>
                             <Menu.Item key="3">添加音频</Menu.Item>
                             <Menu.Item key="4">添加视频</Menu.Item>
                         </SubMenu>

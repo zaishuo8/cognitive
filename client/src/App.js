@@ -9,6 +9,7 @@ import './App.css';
 const App = () => (
     <Router>
         <div>
+            <Route exact path="/" component={MakeSubject} />
             <Route exact path="/make" component={MakeSubject} />
             <Route path="/do" component={DoSubject} />
         </div>
