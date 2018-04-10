@@ -13,6 +13,7 @@ export default class ImgPreview extends Component{
                        multiple accept={'image/png, image/jpeg, image/jpg, image/svg, image/gif'}
                        id={this.props.id}
                        onChange={this._onChange}
+                       style={{display: 'none'}}
                 />
             </div>
         );
@@ -21,19 +22,19 @@ export default class ImgPreview extends Component{
     _onChange = (e) => {
         const files = Array.from(e.target.files);
         const imgSrcArr = [];
-        files.forEach(function (item) {
+        files.forEach((item) => {
             imgSrcArr.push(this.createObjectUrl(item));
         });
         this.props.onImgReady && this.props.onImgReady(imgSrcArr);
     };
 
-    createObjectUrl(file) {
+    createObjectUrl = (file) => {
         if (window.URL) {
             return window.URL.createObjectURL(file);
         } else {
             return window.webkitURL.createObjectURL(file);
         }
-    }
+    };
 
     revokeObjectURL(file) {
         if (window.URL) {
