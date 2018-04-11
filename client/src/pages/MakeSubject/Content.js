@@ -7,14 +7,24 @@ const { SubMenu } = Menu;
 const { Content, Sider } = Layout;
 const { TextArea }  = Input;
 
-const RenderRow = props => (
-    <div style={styles.renderRowContainer}>
-        <div style={styles.closeIcon} onClick={() => {props.delete(props.index);}}>
-            <Icon type="close"/>
+const RenderRow = props => {
+    const containerStyle = {
+        padding: 20,
+        backgroundColor: 'whitesmoke',
+        marginBottom: 20,
+        borderRadius: 4,
+        position: 'relative',   // 父元素设置 relative，子元素的 absolute 就相对于父元素
+        width: props.type === 'img' ? 'fit-content' : 'auto'
+    };
+    return (
+        <div style={containerStyle}>
+            <div style={styles.closeIcon} onClick={() => {props.delete(props.index);}}>
+                <Icon type="close"/>
+            </div>
+            {props.children}
         </div>
-        {props.children}
-    </div>
-);
+    )
+};
 
 /**
  * Demo
@@ -54,7 +64,7 @@ class ContentBody extends Component {
                         break;
                     case 'img':
                         renderRow =
-                            <RenderRow index={index} key={index} delete={this.delete}>
+                            <RenderRow index={index} key={index} delete={this.delete} type={'img'}>
                                 <img key={index} src={item.value} alt={'error'}/>
                             </RenderRow>;
                         questionsRender.push(renderRow);
