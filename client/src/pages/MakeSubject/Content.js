@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 
-import ImgPreview from '../../component/ImgPreview';
+import SourcePreview from '../../component/SourcePreview';
 
 import { Layout, Menu, Icon, Input, Upload } from 'antd';
 const { SubMenu } = Menu;
@@ -72,7 +72,7 @@ class ContentBody extends Component {
                     case 'audio':
                         renderRow =
                             <RenderRow index={index} key={index} delete={this.delete}>
-                                <audio key={index} src={item.value}/>
+                                <audio style={{width: '100%'}} key={index} src={item.value} controls={'controls'}/>
                             </RenderRow>;
                         questionsRender.push(renderRow);
                         break;
@@ -96,10 +96,17 @@ class ContentBody extends Component {
                         onClick={this._addContent}
                     >
                         <SubMenu key="sub1" title={<span><Icon type="question-circle-o"/>创建题干</span>}>
-                            <Menu.Item key="addText">添加文字</Menu.Item>
-                            <ImgPreview id={'imgPreview'} onImgReady={this._onImgReady}/>
-                            <Menu.Item key="addImg"><label htmlFor={'imgPreview'}>添加图片</label></Menu.Item>
-                            <Menu.Item key="3">添加音频</Menu.Item>
+                            <Menu.Item key="addText">
+                                添加文字
+                            </Menu.Item>
+                            <Menu.Item key="addImg">
+                                <SourcePreview id={'imgPreview'} onImgReady={this._onImgReady} type={'img'}/>
+                                <label htmlFor={'imgPreview'}>添加图片</label>
+                            </Menu.Item>
+                            <Menu.Item key="addAudio">
+                                <SourcePreview id={'audioPreview'} onImgReady={this._onAudioReady} type={'audio'}/>
+                                <label htmlFor={'audioPreview'}>添加音频</label>
+                            </Menu.Item>
                             <Menu.Item key="4">添加视频</Menu.Item>
                         </SubMenu>
                         <SubMenu key="sub2" title={<span><Icon type="plus-circle-o" />创建问题</span>}>
@@ -142,13 +149,23 @@ class ContentBody extends Component {
         this.setState(state);
     };
 
-    _onImgReady = (srcArr) => {
+    /**
+     * 添加 state.question 元素
+     * */
+    addQuestionElement(type, srcArr){
         let state = this.state;
-        srcArr.forEach( imgSrc => {
-            state.question.push({type: 'img', value: imgSrc});
+        srcArr.forEach( src => {
+            state.question.push({type: type, value: src});
         } );
-        console.log(state);
         this.setState(state);
+    }
+
+    _onImgReady = (srcArr) => {
+        this.addQuestionElement('img', srcArr);
+    };
+
+    _onAudioReady = (srcArr) => {
+        this.addQuestionElement('audio', srcArr);
     }
 }
 

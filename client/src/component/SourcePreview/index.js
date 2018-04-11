@@ -5,12 +5,19 @@ import React, { Component } from 'react';
  * id: fileInput 的 id, 组件外配合 <label for = {id}/> 使用
  * onImgReady: 图片加载好后的回调，参数 imgSrcArr: 图片在内存中的 url, 可在 <img src = {src}/> 中使用
  **/
-export default class ImgPreview extends Component{
+export default class SourcePreview extends Component{
+
+    typeMap = {
+        img: 'image/png, image/jpeg, image/jpg, image/svg, image/gif',
+        audio: '.mp3, .ogg, .wav',
+    };
+
     render(){
         return (
             <div>
                 <input type={'file'}
-                       multiple accept={'image/png, image/jpeg, image/jpg, image/svg, image/gif'}
+                       multiple
+                       accept={this.typeMap[this.props.type]}
                        id={this.props.id}
                        onChange={this._onChange}
                        style={{display: 'none'}}
