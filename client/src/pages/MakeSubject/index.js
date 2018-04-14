@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import LayoutComponent from '../../component/Layout';
-import Content from './Content';
+import Content from './components/Content';
 
 class MakeSubject extends Component {
     render() {

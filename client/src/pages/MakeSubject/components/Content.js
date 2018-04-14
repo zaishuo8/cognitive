@@ -1,8 +1,9 @@
 import React, { Component } from 'react';
 
-import SourcePreview from '../../component/SourcePreview';
+import SourcePreview from '../../../component/SourcePreview/index';
 
-import { Layout, Menu, Icon, Input, Upload } from 'antd';
+import { Layout, Menu, Icon, Input, Button } from 'antd';
+import AudioRecordLayer from "./AudioRecordLayer";
 const { SubMenu } = Menu;
 const { Content, Sider } = Layout;
 const { TextArea }  = Input;
@@ -41,7 +42,8 @@ class ContentBody extends Component {
                 options: [],
                 blankLength: false,
                 draw: false
-            }
+            },
+            showAudioRecordLayer: false,
         }
     }
 
@@ -107,7 +109,7 @@ class ContentBody extends Component {
                                 <SourcePreview id={'audioPreview'} onImgReady={this._onAudioReady} type={'audio'}/>
                                 <label htmlFor={'audioPreview'}>添加音频</label>
                             </Menu.Item>
-                            <Menu.Item key="4">添加视频</Menu.Item>
+                            <Menu.Item key="addAudioRecord">添加录音</Menu.Item>
                         </SubMenu>
                         <SubMenu key="sub2" title={<span><Icon type="plus-circle-o" />创建问题</span>}>
                             <Menu.Item key="5">选择题</Menu.Item>
@@ -116,8 +118,9 @@ class ContentBody extends Component {
                         </SubMenu>
                     </Menu>
                 </Sider>
-                <Content style={{ padding: '0 24px', minHeight: 280 }}>
+                <Content style={{ padding: '0 24px', minHeight: 280, position: 'relative' }}>
                     {this._renderQuestion()}
+                    {this.state.showAudioRecordLayer ? <AudioRecordLayer saveAudioRecord={this.saveAudioRecord} onClose={this.onAudioRecordLayerClose}/> : null}
                 </Content>
             </Layout>
         );
@@ -133,8 +136,9 @@ class ContentBody extends Component {
                 state.question.push({type: 'text', value: ''});
                 this.setState(state);
                 break;
-            case 'addImg':
-
+            case 'addAudioRecord':
+                this.setState({showAudioRecordLayer: true});
+                break;
             default:
                 break;
         }
@@ -166,7 +170,23 @@ class ContentBody extends Component {
 
     _onAudioReady = (srcArr) => {
         this.addQuestionElement('audio', srcArr);
-    }
+    };
+
+    /**
+     * 关闭录音蒙层
+     * */
+    closeAudioRecordLayer = () => {
+        this.setState({showAudioRecordLayer: false});
+    };
+
+    saveAudioRecord = (audioSource) => {
+        this.addQuestionElement('audio', [audioSource]);
+        this.closeAudioRecordLayer();
+    };
+
+    onAudioRecordLayerClose = () => {
+        this.closeAudioRecordLayer();
+    };
 }
 
 const styles = {
