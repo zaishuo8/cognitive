@@ -1,4 +1,5 @@
 import React, { Component } from 'react';
+import ReactDOM from 'react-dom';
 
 import SourcePreview from '../../../component/SourcePreview/index';
 
@@ -118,12 +119,27 @@ class ContentBody extends Component {
                         </SubMenu>
                     </Menu>
                 </Sider>
-                <Content style={{ padding: '0 24px', minHeight: 280, position: 'relative' }}>
+                <Content ref={c => this._content = c} style={{ padding: '0 24px', minHeight: 280, position: 'relative' }}>
                     {this._renderQuestion()}
                     {this.state.showAudioRecordLayer ? <AudioRecordLayer saveAudioRecord={this.saveAudioRecord} onClose={this.onAudioRecordLayerClose}/> : null}
                 </Content>
             </Layout>
         );
+    }
+
+    componentDidMount(){
+        /**
+         * 设置编辑面板的宽高与 window 等比例
+         * */
+        setTimeout(() => {
+            const windowWidth = window.innerWidth;
+            const windowHeight = window.innerHeight;
+            const content = this._content;
+            const contentNode = ReactDOM.findDOMNode(content);
+            const contentWidth = parseInt(window.getComputedStyle(contentNode).width, 10);
+            const contentHeight = windowHeight * contentWidth / windowWidth;
+            contentNode.style.height = `${contentHeight}px`;
+        }, 0);
     }
 
     /**
