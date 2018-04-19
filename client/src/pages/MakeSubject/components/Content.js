@@ -3,11 +3,12 @@ import ReactDOM from 'react-dom';
 
 import SourcePreview from '../../../component/SourcePreview/index';
 
-import { Layout, Menu, Icon, Input, Button } from 'antd';
+import { Layout, Menu, Icon, Input, Radio } from 'antd';
 import AudioRecordLayer from "./AudioRecordLayer";
 const { SubMenu } = Menu;
 const { Content, Sider } = Layout;
 const { TextArea }  = Input;
+const RadioGroup = Radio.Group;
 
 const RenderRow = props => {
     const containerStyle = {
@@ -38,12 +39,16 @@ class ContentBody extends Component {
     constructor(props){
         super(props);
         this.state = {
-            question: [], // {type: 'text', value: '今天是星期几'}, {type: 'img', value: 'http:\\img\logo.img'} ...
-            answer: {
-                options: [],
-                blankLength: false,
-                draw: false
-            },
+            // {type: 'text', value: '今天是星期几'}, {type: 'img', value: 'http:\\img\logo.img'} ...
+            question: [],
+            // answerType: textChoice, imgChoice, voiceChoice, fillBlanks, drawCanvas, voiceInput
+            // {type: textChoice, options: ['...', '...', ...]}
+            // {type: imgChoice, options: ['url', 'url', ...]}
+            // {type: voiceChoice, options: ['url', 'url', ...]}
+            // {type: fillBlanks}
+            // {type: drawCanvas}
+            // {type: voiceInput}
+            answer: {},
             showAudioRecordLayer: false,
         }
     }
@@ -56,7 +61,7 @@ class ContentBody extends Component {
                 switch (item.type){
                     case 'text':
                         renderRow =
-                            <RenderRow index={index} key={index} delete={this.delete}>
+                            <RenderRow index={index} key={index} delete={this.deleteQuestion}>
                                 <TextArea value={item.value} onChange={e => {
                                     let state = this.state;
                                     state.question[index].value = e.nativeEvent.target.value;
@@ -87,6 +92,38 @@ class ContentBody extends Component {
         return questionsRender;
     }
 
+    _renderAnswer(){
+        const answer = this.state.answer;
+        if (!answer){
+            return;
+        }
+        switch (answer.type){
+            case 'textChoice':
+                const options = answer.options;
+                return (
+                    <RadioGroup style={styles.radioGroupStyle} onChange={() => {}}>
+                        {options.map((option, index) => {
+                            return (
+                                <RenderRow key={index} index={index} delete={this.deleteTextChoice}>
+                                    <Radio style={styles.radioStyle} value={index}>
+                                        <Input
+                                            placeholder="请填写选项内容"
+                                            value={option}
+                                            onChange={(e) => {
+                                                let state = this.state;
+                                                state.answer.options[index] = e.nativeEvent.target.value;
+                                                this.setState(state);
+                                            }}
+                                        />
+                                    </Radio>
+                                </RenderRow>
+                            );
+                        })}
+                    </RadioGroup>
+                );
+        }
+    }
+
     render() {
         return (
             <Layout style={{ padding: '24px 0', background: '#fff' }}>
@@ -113,14 +150,18 @@ class ContentBody extends Component {
                             <Menu.Item key="addAudioRecord">添加录音</Menu.Item>
                         </SubMenu>
                         <SubMenu key="sub2" title={<span><Icon type="plus-circle-o" />创建问题</span>}>
-                            <Menu.Item key="5">选择题</Menu.Item>
-                            <Menu.Item key="6">填空题</Menu.Item>
-                            <Menu.Item key="7">画图题</Menu.Item>
+                            <Menu.Item key="textChoice">文字选择题</Menu.Item>
+                            <Menu.Item key="imgChoice">图片选择题</Menu.Item>
+                            <Menu.Item key="voiceChoice">语音选择题</Menu.Item>
+                            <Menu.Item key="fillBlanks">填空题</Menu.Item>
+                            <Menu.Item key="drawCanvas">画图题</Menu.Item>
+                            <Menu.Item key="voiceInput">语音作答题</Menu.Item>
                         </SubMenu>
                     </Menu>
                 </Sider>
                 <Content ref={c => this._content = c} style={{ padding: '0 24px', minHeight: 280, position: 'relative' }}>
                     {this._renderQuestion()}
+                    {this._renderAnswer()}
                     {this.state.showAudioRecordLayer ? <AudioRecordLayer saveAudioRecord={this.saveAudioRecord} onClose={this.onAudioRecordLayerClose}/> : null}
                 </Content>
             </Layout>
@@ -146,26 +187,46 @@ class ContentBody extends Component {
      * 添加内容
      * */
     _addContent = ({ item, key, keyPath }) => {
-        switch (key){
-            case 'addText':
-                let state = this.state;
-                state.question.push({type: 'text', value: ''});
+        if (key === 'addText'){
+            let state = this.state;
+            state.question.push({type: 'text', value: ''});
+            this.setState(state);
+        } else if (key === 'addAudioRecord'){
+            this.setState({showAudioRecordLayer: true});
+        } else if (key === 'textChoice') {
+            const state = this.state;
+            const answer = state.answer;
+            if (!answer.type){
+                answer.type = 'textChoice';
+                answer.options = [''];
                 this.setState(state);
-                break;
-            case 'addAudioRecord':
-                this.setState({showAudioRecordLayer: true});
-                break;
-            default:
-                break;
+                return;
+            }
+            if (answer.type === 'textChoice') {
+                answer.options.push('');
+                this.setState(state);
+            }
         }
     };
 
     /**
-     * 删除内容
+     * 删除题干
      * */
-    delete = (index) => {
+    deleteQuestion = (index) => {
         let state = this.state;
         state.question.splice(index, 1);
+        this.setState(state);
+    };
+
+    /**
+     * 删除文字选择题答案
+     * */
+    deleteTextChoice = (index) => {
+        const state = this.state;
+        state.answer.options.splice(index, 1);
+        if (state.answer.options.length === 0) {
+            state.answer.type = undefined;
+        }
         this.setState(state);
     };
 
@@ -217,7 +278,16 @@ const styles = {
         position: 'absolute',
         top: 4,
         right: 4,
-    }
+    },
+    radioGroupStyle: {
+        width: '100%',
+    },
+    radioStyle: {
+        display: 'block',
+        height: '32px',
+        lineHeight: '32px',
+        paddingRight: 20
+    },
 };
 
 export default ContentBody;
