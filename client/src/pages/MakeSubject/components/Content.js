@@ -53,6 +53,9 @@ class ContentBody extends Component {
         }
     }
 
+    /**
+     * 渲染题干
+     * */
     _renderQuestion(){
         let questionsRender = [];
         this.state.question.map((item, index) => {
@@ -92,6 +95,9 @@ class ContentBody extends Component {
         return questionsRender;
     }
 
+    /**
+     * 渲染问题
+     * */
     _renderAnswer(){
         const answer = this.state.answer;
         if (!answer){
@@ -99,10 +105,10 @@ class ContentBody extends Component {
         }
         switch (answer.type){
             case 'textChoice':
-                const options = answer.options;
+                const textOptions = answer.options;
                 return (
                     <RadioGroup style={styles.radioGroupStyle} onChange={() => {}}>
-                        {options.map((option, index) => {
+                        {textOptions.map((option, index) => {
                             return (
                                 <RenderRow key={index} index={index} delete={this.deleteTextChoice}>
                                     <Radio style={styles.radioStyle} value={index}>
@@ -116,6 +122,22 @@ class ContentBody extends Component {
                                             }}
                                         />
                                     </Radio>
+                                </RenderRow>
+                            );
+                        })}
+                    </RadioGroup>
+                );
+            case 'imgChoice':
+                const imgOptions = answer.options;
+                return (
+                    <RadioGroup style={styles.radioGroupStyle} onChange={() => {}}>
+                        {imgOptions.map((option, index) => {
+                            return (
+                                <RenderRow index={index} key={index} delete={this.deleteImgChoice} type={'img'}>
+                                    <div style={{display: 'flex', alignItems: 'center'}}>
+                                        <Radio style={styles.radioStyle} value={index}/>
+                                        <img key={index} src={option} alt={'error'}/>
+                                    </div>
                                 </RenderRow>
                             );
                         })}
@@ -151,7 +173,10 @@ class ContentBody extends Component {
                         </SubMenu>
                         <SubMenu key="sub2" title={<span><Icon type="plus-circle-o" />创建问题</span>}>
                             <Menu.Item key="textChoice">文字选择题</Menu.Item>
-                            <Menu.Item key="imgChoice">图片选择题</Menu.Item>
+                            <Menu.Item key="imgChoice">
+                                <SourcePreview id={'answerImgPreview'} onImgReady={this._onAnswerImgReady} type={'img'}/>
+                                <label htmlFor={'answerImgPreview'}>图片选择题</label>
+                            </Menu.Item>
                             <Menu.Item key="voiceChoice">语音选择题</Menu.Item>
                             <Menu.Item key="fillBlanks">填空题</Menu.Item>
                             <Menu.Item key="drawCanvas">画图题</Menu.Item>
@@ -231,6 +256,18 @@ class ContentBody extends Component {
     };
 
     /**
+     * 删除图片选择题答案
+     * */
+    deleteImgChoice = (index) => {
+        const state = this.state;
+        state.answer.options.splice(index, 1);
+        if (state.answer.options.length === 0) {
+            state.answer.type = undefined;
+        }
+        this.setState(state);
+    };
+
+    /**
      * 添加 state.question 元素
      * */
     addQuestionElement(type, srcArr){
@@ -241,10 +278,16 @@ class ContentBody extends Component {
         this.setState(state);
     }
 
+    /**
+     * 添加题干中图片(图片准备好后的回调函数)
+     * */
     _onImgReady = (srcArr) => {
         this.addQuestionElement('img', srcArr);
     };
 
+    /**
+     * 添加题干中音频(音频准备好后的回调函数)
+     * */
     _onAudioReady = (srcArr) => {
         this.addQuestionElement('audio', srcArr);
     };
@@ -256,14 +299,41 @@ class ContentBody extends Component {
         this.setState({showAudioRecordLayer: false});
     };
 
+    /**
+     * 录音蒙层中保存录音按钮方法
+     * */
     saveAudioRecord = (audioSource) => {
         this.addQuestionElement('audio', [audioSource]);
         this.closeAudioRecordLayer();
     };
 
+    /**
+     * 录音蒙层中点击 X 按钮方法
+     * */
     onAudioRecordLayerClose = () => {
         this.closeAudioRecordLayer();
     };
+
+    /**
+     * 图片选择题中添加图片选项(图片准备好后的回调函数)
+     * state.answer 格式: {type: imgChoice, options: ['url', 'url', ...]}
+     * */
+    _onAnswerImgReady = (srcArr) => {
+        const state = this.state;
+        const answer = state.answer;
+        if (!answer.type){
+            answer.type = 'imgChoice';
+            answer.options = srcArr;
+            this.setState(state);
+            return;
+        }
+        if (answer.type === 'imgChoice') {
+            const newAnswerOptions = answer.options.concat(srcArr);
+            const state = this.state;
+            state.answer.options = newAnswerOptions;
+            this.setState(state);
+        }
+    }
 }
 
 const styles = {
